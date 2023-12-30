@@ -1,17 +1,15 @@
 import express from 'express';
 import http from 'http';
-import path from 'path';
+import { join } from 'https://deno.land/std/path/mod.ts';
 import { Server as SocketIOServer } from 'https://cdn.skypack.dev/socket.io@4.0.1';
 
 const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server);
 
-
-app.use('/static', express.static(path.join(new URL(import.meta.url).pathname, 'static')));
-
+app.use('/static', express.static(join(new URL(import.meta.url).pathname, 'static')));
 app.get('/', (req, res) => {
-    res.sendFile(path.join(new URL(import.meta.url).pathname, 'index.html'));
+    res.sendFile(join(new URL(import.meta.url).pathname, 'index.html'));
 });
 
 const players = {};
