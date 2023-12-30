@@ -1,16 +1,16 @@
-const express = require('express');
-const http = require('http');
-const path = require('path');
-const socketIO = require('socket.io');
+import express from 'express';
+import http from 'http';
+import path from 'path';
+import { Server as SocketIOServer } from 'socket.io';
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = new SocketIOServer(server);
 
-app.use('/static', express.static(path.join(__dirname, 'static')));
+app.use('/static', express.static(path.join(new URL(import.meta.url).pathname, 'static')));
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(new URL(import.meta.url).pathname, 'index.html'));
 });
 
 const players = {};
@@ -71,7 +71,7 @@ function generateRandomPosition() {
     return { x, y };
 }
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(Deno.env.get('PORT')) || 5000;
 const HOST = '0.0.0.0';
 
 server.listen(PORT, HOST, () => {
