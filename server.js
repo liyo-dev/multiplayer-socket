@@ -4,28 +4,21 @@ const path = require('path');
 const socketIO = require('socket.io');
 
 const app = express();
-const server = http.Server(app);
-const io = socketIO(server, {
-    pingTimeout: 60000,
-});
+const server = http.createServer(app);
+const io = socketIO(server);
 
-app.set('port', 5000);
-app.use('/static', express.static(__dirname + '/static'));
+app.use('/static', express.static(path.join(__dirname, 'static')));
 
-app.get('/', function (request, response) {
-    response.sendFile(path.join(__dirname, 'index.html'));
-});
-
-server.listen(5000, function () {
-    console.log('Starting server on port 5000');
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 const players = {};
 const enemies = {};
 generateEnemies();
 
-io.on('connection', function (socket) {
-    console.log('Player [' + socket.id + '] connected');
+io.on('connection', (socket) => {
+    console.log(`Player [${socket.id}] connected`);
 
     players[socket.id] = {
         rotation: 0,
@@ -41,13 +34,13 @@ io.on('connection', function (socket) {
     socket.emit('newEnemies', enemies);
     socket.broadcast.emit('newEnemies', enemies);
 
-    socket.on('disconnect', function () {
-        console.log('Player [' + socket.id + '] disconnected');
+    socket.on('disconnect', () => {
+        console.log(`Player [${socket.id}] disconnected`);
         delete players[socket.id];
         io.emit('playerDisconnected', socket.id);
     });
 
-    socket.on('playerMovement', function (movementData) {
+    socket.on('playerMovement', (movementData) => {
         players[socket.id].x = movementData.x;
         players[socket.id].y = movementData.y;
         players[socket.id].rotation = movementData.rotation;
@@ -55,7 +48,7 @@ io.on('connection', function (socket) {
         socket.broadcast.emit('playerMoved', players[socket.id]);
     });
 
-    socket.on('rotateSword', function () {
+    socket.on('rotateSword', () => {
         socket.broadcast.emit('playerRotated', { playerId: socket.id });
     });
 });
@@ -77,3 +70,10 @@ function generateRandomPosition() {
     const y = Math.random() * 400;
     return { x, y };
 }
+
+const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0';
+
+server.listen(PORT, HOST, () => {
+    console.log(`Server is running on http://${HOST}:${PORT}`);
+});
