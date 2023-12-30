@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "index.html",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "express": "^4.18.2",
+    "firebase": "^10.7.1",
     "phaser": "^3.70.0",
     "phaser3-project-template": "^1.0.9",
     "socket.io": "^4.6.1"
