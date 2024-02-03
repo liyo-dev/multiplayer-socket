@@ -1,15 +1,19 @@
 import express from 'express';
 import http from 'http';
-import { join } from 'https://deno.land/std/path/mod.ts';
-import { Server as SocketIOServer } from 'https://cdn.skypack.dev/socket.io@4.0.1';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { Server as SocketIOServer } from 'socket.io';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server);
 
-app.use('/static', express.static(join(new URL(import.meta.url).pathname, 'static')));
+app.use('/static', express.static(join(__dirname, 'static')));
 app.get('/', (req, res) => {
-    res.sendFile(join(new URL(import.meta.url).pathname, 'index.html'));
+    res.sendFile(join(__dirname, 'index.html'));
 });
 
 const players = {};
@@ -70,7 +74,7 @@ function generateRandomPosition() {
     return { x, y };
 }
 
-const PORT = Number(Deno.env.get('PORT')) || 5000;
+const PORT = 5000;
 const HOST = '0.0.0.0';
 
 server.listen(PORT, HOST, () => {
